@@ -6,7 +6,7 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
-const IPFS_CID = 'bafybeibkck6ylwqmpkqglvsvb7wc5xecb65uypg7fbcembuj7u4xuh2evq'
+const IPFS_CID = 'bafybeig4vvzxgxcrc6xoccqeq27xd3bzpiw6725gnj7aq23ak5n4vituq4'
 
 class Footer extends React.Component {
   render () {
@@ -23,7 +23,7 @@ class Footer extends React.Component {
           <Col>
             <h6>Source Code</h6>
             <ul>
-              <li><a href='https://github.com/Permissionless-Software-Foundation/react-bootstrap-web3-spa' target='_blank' rel='noreferrer'>GitHub</a></li>
+              <li><a href='https://github.com/Permissionless-Software-Foundation/web-app-sign-message' target='_blank' rel='noreferrer'>GitHub</a></li>
             </ul>
           </Col>
         </Row>

@@ -15,7 +15,8 @@ import WaitingModal from './components/waiting-modal'
 import AsyncLoad from './services/async-load'
 import ServerSelect from './components/servers'
 import Footer from './components/footer'
-import GetBalance from './components/balance'
+// import GetBalance from './components/balance'
+import SignMessage from './components/sign-message'
 
 // Default restURL for a back-end server.
 let serverURL = 'https://free-bch.fullstack.cash'
@@ -143,11 +144,11 @@ function InitializedView (props) {
       <Container style={{ backgroundColor: '#ddd' }}>
         <Row style={{ padding: '25px' }}>
           <Col>
-            <h1 className='header'>PSF Web3 Demo</h1>
+            <h1 className='header'>Sign a Message</h1>
           </Col>
         </Row>
       </Container>
-      <GetBalance wallet={_this.state.wallet} />
+      <SignMessage wallet={_this.state.wallet} />
     </>
   )
 }

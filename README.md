@@ -1,25 +1,22 @@
-# react-bootstrap-web3-spa
+# web-app-sign-message
 
-This is a single page app (SPA) based on [react-bootstrap](https://www.npmjs.com/package/react-bootstrap). This app is a template to show how to build a web app that leverages the [Cash Stack](https://cashstack.info) web3 architecture, a censorship-resistant back-end for accessing the Bitcoin Cash blockchain.
+## About (Non-Technical)
+This simple web app can be used to sign a message with a WIF private key. A WIF private key starts with the lettter 'K' or 'L'. Fill out the forms below, and you'll be presented with a signed message, proving cryptographically that you own the address associated with that private key.
 
-This app can be compiled and uploaded to Filecoin via [web3.storage](https://web3.storage). This means a censorship-resistant front-end app (SPA) can be built, which communicates with a censorship-resistant back-end.
+This app is useful for gaining access to the [PSF VIP Telegram channel](https://t.me/psf_vip). If you store your PSF tokens on a [paper wallet](https://cloudflare-ipfs.com/ipfs/bafybeifu6fhskdqj3gvp5q3wh3idukhrxiyhrrja6biqrqcei7rj23esn4/), you can use this app to sign the message 'verify' with the WIF from your paper wallet.
 
-- [Live Demo on Filecoin](https://bafybeiebpgjdznc5vyxtqoeir4yxdneu5roq7fw53755otpzqlak2am7oi.ipfs.dweb.link/)
+- [Live Demo on Filecoin](https://bafybeig4vvzxgxcrc6xoccqeq27xd3bzpiw6725gnj7aq23ak5n4vituq4.ipfs.dweb.link/)
 
-## Major Features
-- [react-bootstrap](https://react-bootstrap.github.io/) is used for general style and layout control.
-- An easily customized *waiting modal* component can be invoked while waiting for network calls to complete.
-- [minimal-slp-wallet](https://www.npmjs.com/package/minimal-slp-wallet) is used to access tokens and BCH on the Bitcoin Cash blockchain.
-- A 'server selection' dropdown allows the user to select from an array of redundant back end servers.
-- This site is statically compiled, uploaded to Filecoin, and served over IPFS for censorship resistance and version control.
+## About (Technical)
+This is a single page app (SPA) based on [react-bootstrap](https://www.npmjs.com/package/react-bootstrap). This app is forked from the [react-bootstrap-web3-spa React template](https://github.com/Permissionless-Software-Foundation/react-bootstrap-web3-spa).
+
 
 ## Installation
 ```bash
-git clone https://github.com/Permissionless-Software-Foundation/react-bootstrap-web3-spa
-cd react-bootstrap-web3-spa
+git clone https://github.com/Permissionless-Software-Foundation/web-app-sign-message
+cd web-app-sign-message
 npm install
 npm start
-npm run build
 ```
 
 ## Support
