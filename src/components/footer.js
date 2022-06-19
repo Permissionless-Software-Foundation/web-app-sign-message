@@ -6,7 +6,7 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
-const IPFS_CID = 'bafybeig4vvzxgxcrc6xoccqeq27xd3bzpiw6725gnj7aq23ak5n4vituq4'
+const IPFS_CID = 'bafybeih5kjluvlsds2iwwczgle73pizv4qmmq76uqmec7y73m7wexbgqze'
 
 class Footer extends React.Component {
   render () {
