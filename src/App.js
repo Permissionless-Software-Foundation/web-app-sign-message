@@ -5,6 +5,7 @@
 // Global npm libraries
 import React from 'react'
 import { useQueryParam, StringParam } from 'use-query-params'
+import { Container, Row, Col } from 'react-bootstrap'
 
 // Local libraries
 import './App.css'
@@ -118,7 +119,6 @@ class App extends React.Component {
       <>
         <GetRestUrl />
         <LoadScripts />
-        <NavMenu menuHandler={this.onMenuClick} />
 
         {
           this.state.showStartModal
@@ -174,12 +174,6 @@ function UninitializedView (props) {
         hideSpinner={props.hideSpinner}
         denyClose={props.denyClose}
       />
-
-      {
-        _this.state.asyncInitFinished
-          ? <AppBody menuState={100} wallet={props.wallet} appData={props.appData} />
-          : null
-      }
     </>
   )
 }
