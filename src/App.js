@@ -1,25 +1,31 @@
 /*
-  This is an SPA that displays information about NFTs on the BCH blockchain.
+  This is an SPA that creates a template for future BCH web3 apps.
 */
 
 // Global npm libraries
 import React from 'react'
-import { Container, Row, Col } from 'react-bootstrap'
 import { useQueryParam, StringParam } from 'use-query-params'
 
 // Local libraries
 import './App.css'
 import LoadScripts from './components/load-scripts'
-// import NFTs from './components/nfts'
 import WaitingModal from './components/waiting-modal'
 import AsyncLoad from './services/async-load'
-import ServerSelect from './components/servers'
+import SelectServerButton from './components/servers/select-server-button'
 import Footer from './components/footer'
 // import GetBalance from './components/balance'
 import SignMessage from './components/sign-message'
 
 // Default restURL for a back-end server.
-let serverURL = 'https://free-bch.fullstack.cash'
+let serverUrl = 'https://free-bch.fullstack.cash'
+
+// Default alternative servers.
+const defaultServerOptions = [
+  { value: 'https://free-bch.fullstack.cash', label: 'https://free-bch.fullstack.cash' },
+  { value: 'https://bc01-ca-bch-consumer.fullstackcash.nl', label: 'https://bc01-ca-bch-consumer.fullstackcash.nl' },
+  { value: 'https://pdx01-usa-bch-consumer.fullstackcash.nl', label: 'https://pdx01-usa-bch-consumer.fullstackcash.nl' },
+  { value: 'https://wa-usa-bch-consumer.fullstackcash.nl', label: 'https://wa-usa-bch-consumer.fullstackcash.nl' }
+]
 
 let _this
 
@@ -30,15 +36,19 @@ class App extends React.Component {
     // Encasulate dependencies
     this.asyncLoad = new AsyncLoad()
 
-    // Working array for storing modal output.
-    this.modalBody = []
-    this.tokenData = {}
-
     this.state = {
-      walletInitialized: false,
-      wallet: false,
-      modalBody: this.modalBody,
-      hideSpinner: false
+      wallet: false, // BCH wallet instance
+      menuState: 0, // The current View being displayed in the app
+      serverUrl, // Stores the URL for the currently selected server.
+      servers: defaultServerOptions, // A list of back end servers.
+
+      // Startup Modal
+      showStartModal: true, // Should the startup modal be visible?
+      asyncInitFinished: false, // Did startup finish?
+      asyncInitSucceeded: null, // Did startup finish successfully?
+      modalBody: [], // Strings displayed in the modal
+      hideSpinner: false, // Spinner gif in modal
+      denyClose: false
     }
 
     this.cnt = 0
@@ -50,36 +60,30 @@ class App extends React.Component {
     try {
       this.addToModal('Loading minimal-slp-wallet')
 
+      this.setState({
+        denyClose: true
+      })
+
       await this.asyncLoad.loadWalletLib()
 
+      this.addToModal('Getting alternative servers')
+      const servers = await this.asyncLoad.getServers()
+      // console.log('servers: ', servers)
+
       this.addToModal('Initializing wallet')
+      // console.log(`Initializing wallet with back end server ${serverUrl}`)
 
-      const wallet = await this.asyncLoad.initWallet(serverURL)
-
-      // this.addToModal('Getting Group Token Information')
-
-      // Get Group Token info
-      // const groupData = await this.asyncLoad.getGroupData(groupTokenId)
-      // console.log(`groupData: ${JSON.stringify(groupData, null, 2)}`)
-
-      // this.addToModal('Getting NFT Information')
-
-      /// Get NFT child info
-      // const nftData = []
-      // for (let i = 0; i < groupData.nfts.length; i++) {
-      //   const tokenData = await this.asyncLoad.getTokenData(groupData.nfts[i])
-      //   nftData.push(tokenData)
-      // }
-      // console.log(`nft data: ${JSON.stringify(nftData, null, 2)}`)
-
-      // this.tokenData = {
-      //   groupData,
-      //   nftData
-      // }
+      const wallet = await this.asyncLoad.initWallet(serverUrl)
 
       this.setState({
         wallet,
-        walletInitialized: true
+        serverUrl,
+        // queryParamExists,
+        servers,
+        showStartModal: false,
+        asyncInitFinished: true,
+        asyncInitSucceeded: true,
+        denyClose: false
       })
     } catch (err) {
       this.modalBody = [
@@ -89,31 +93,69 @@ class App extends React.Component {
 
       this.setState({
         modalBody: this.modalBody,
-        hideSpinner: true
+        hideSpinner: true,
+        showStartModal: true,
+        asyncInitFinished: true,
+        asyncInitSucceeded: false,
+        denyClose: false
       })
     }
   }
 
   render () {
     // console.log('App component rendered. this.state.wallet: ', this.state.wallet)
+    // console.log(`App component menuState: ${this.state.menuState}`)
+    // console.log(`render() this.state.serverUrl: ${this.state.serverUrl}`)
+
+    // This is a macro object that is passed to all child components. It gathers
+    // all the data and handlers used throughout the app.
+    const appData = {
+      servers: this.state.servers, // Alternative back end servers
+      wallet: this.state.wallet
+    }
 
     return (
       <>
         <GetRestUrl />
         <LoadScripts />
-        {this.state.walletInitialized ? <InitializedView wallet={this.state.wallet} tokens={this.tokenData} /> : <UninitializedView modalBody={this.state.modalBody} hideSpinner={this.state.hideSpinner} />}
-        <ServerSelect />
-        <Footer />
+        <NavMenu menuHandler={this.onMenuClick} />
+
+        {
+          this.state.showStartModal
+            ? <UninitializedView
+                modalBody={this.state.modalBody}
+                hideSpinner={this.state.hideSpinner}
+                appData={appData}
+                denyClose={this.state.denyClose}
+              />
+            : <InitializedView wallet={this.state.wallet} menuState={this.state.menuState} appData={appData} />
+        }
+
+        <SelectServerButton menuHandler={this.onMenuClick} />
+        <Footer appData={appData} />
       </>
     )
   }
 
   // Add a new line to the waiting modal.
   addToModal (inStr) {
-    this.modalBody.push(inStr)
+    const modalBody = this.state.modalBody
+
+    modalBody.push(inStr)
 
     this.setState({
-      modalBody: this.modalBody
+      modalBody
+    })
+  }
+
+  // This handler is passed into the child menu component. When an item in the
+  // nav menu is clicked, this handler will update the state. The state is
+  // used by the AppBody component to determine which View component to display.
+  onMenuClick (menuState) {
+    // console.log('menuState: ', menuState)
+
+    _this.setState({
+      menuState
     })
   }
 }
@@ -125,20 +167,28 @@ function UninitializedView (props) {
   const heading = 'Loading Blockchain Data...'
 
   return (
-    <Container style={{ backgroundColor: '#ddd' }}>
-      <Row style={{ padding: '25px' }}>
-        <Col>
-          <h1 className='header'>PSF Web3 Demo</h1>
+    <>
+      <WaitingModal
+        heading={heading}
+        body={props.modalBody}
+        hideSpinner={props.hideSpinner}
+        denyClose={props.denyClose}
+      />
 
-          <WaitingModal heading={heading} body={props.modalBody} hideSpinner={props.hideSpinner} />
-        </Col>
-      </Row>
-    </Container>
+      {
+        _this.state.asyncInitFinished
+          ? <AppBody menuState={100} wallet={props.wallet} appData={props.appData} />
+          : null
+      }
+    </>
   )
 }
 
 // This is rendered *after* the BCH wallet is initialized.
 function InitializedView (props) {
+  // console.log(`InitializedView props.menuState: ${props.menuState}`)
+  // console.log(`InitializedView _this.state.menuState: ${_this.state.menuState}`)
+
   return (
     <>
       <Container style={{ backgroundColor: '#ddd' }}>
@@ -153,17 +203,17 @@ function InitializedView (props) {
   )
 }
 
+// Get the restURL query parameter.
 function GetRestUrl (props) {
   const [restURL] = useQueryParam('restURL', StringParam)
   // console.log('restURL: ', restURL)
 
-  serverURL = restURL
+  if (restURL) {
+    serverUrl = restURL
+    // queryParamExists = true
+  }
 
   return (<></>)
 }
-
-// function sleep (ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms))
-// }
 
 export default App
